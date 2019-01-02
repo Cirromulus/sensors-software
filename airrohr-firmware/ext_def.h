@@ -1,5 +1,7 @@
 // Language config
+#if !defined(CURRENT_LANG)
 #define CURRENT_LANG INTL_LANG
+#endif
 
 // Wifi config
 #define WLANSSID "Freifunk-disabled"
@@ -80,7 +82,7 @@
 
 // DHT22, temperature, humidity
 #define DHT_READ 1
-#define DHT_TYPE DHT22
+#define DHT_TYPE DHT11
 #define DHT_API_PIN 7
 
 // HTU21D, temperature, humidity
