@@ -1,9 +1,9 @@
 /*
  *	airRohr firmware
  *	Copyright (C) 2016-2018  Code for Stuttgart a.o.
- * 
+ *
  *  Swedish translations
- * 
+ *
  *	Texts should be as short as possible
  *	We only have 512 kB for the entire firmware
  */
@@ -23,7 +23,7 @@ const char INTL_SDS011[] PROGMEM = "SDS011 ({pm})";
 const char INTL_PMS[] PROGMEM = "Plantower PMS(1,3,5,6,7)003 ({pm})";
 const char INTL_HPM[] PROGMEM = "Honeywell PM sensor";
 const char INTL_PPD42NS[] PROGMEM = "PPD42NS";
-const char INTL_DHT22[] PROGMEM = "DHT22 ({t}, {h})";
+const char INTL_DHT22[] PROGMEM = "DHT11 ({t}, {h})";
 const char INTL_HTU21D[] PROGMEM = "HTU21D ({t}, {h})";
 const char INTL_BMP180[] PROGMEM = "BMP180 ({t}, {p})";
 const char INTL_BMP280[] PROGMEM = "BMP280 ({t}, {p})";
@@ -47,12 +47,12 @@ const char INTL_MEASUREMENT_INTERVAL[] PROGMEM = "Mätintervall";
 const char INTL_DURATION_ROUTER_MODE[] PROGMEM = "Permanent&nbsp;router-modus";
 const char INTL_MORE_APIS[] PROGMEM = "Ytterligare APIer";
 const char INTL_SEND_TO_OWN_API[] PROGMEM = "Skicka till eget API";
-const char INTL_SERVER[] PROGMEM = "Server"; 
-const char INTL_PATH[] PROGMEM = "Sökväg (path)"; 
-const char INTL_PORT[] PROGMEM = "Port"; 
-const char INTL_USER[] PROGMEM = "Användarnamn"; 
-const char INTL_PASSWORD[] PROGMEM = "Lösenord"; 
-const char INTL_SEND_TO[] PROGMEM = "Skicka till {v}"; 
+const char INTL_SERVER[] PROGMEM = "Server";
+const char INTL_PATH[] PROGMEM = "Sökväg (path)";
+const char INTL_PORT[] PROGMEM = "Port";
+const char INTL_USER[] PROGMEM = "Användarnamn";
+const char INTL_PASSWORD[] PROGMEM = "Lösenord";
+const char INTL_SEND_TO[] PROGMEM = "Skicka till {v}";
 const char INTL_READ_FROM[] PROGMEM = "Hämta {v}";
 const char INTL_SENSOR_IS_REBOOTING[] PROGMEM = "Sensor startas om.";
 const char INTL_RESTART_DEVICE[] PROGMEM = "Starta om enhet";
