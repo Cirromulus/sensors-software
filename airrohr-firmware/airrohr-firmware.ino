@@ -197,6 +197,7 @@ namespace cfg {
 	char version_from_local_config[20] = "";
 
 	bool dht_read = DHT_READ;
+	bool dht_is_22 = DHT_IS_22;
 	bool htu21d_read = HTU21D_READ;
 	bool ppd_read = PPD_READ;
 	bool sds_read = SDS_READ;
@@ -313,7 +314,8 @@ SoftwareSerial serialGPS(GPS_SERIAL_RX, GPS_SERIAL_TX, false, 512);
 /*****************************************************************
  * DHT declaration                                               *
  *****************************************************************/
-DHT dht(ONEWIRE_PIN, DHT_TYPE);
+uint8_t dht_mem[sizeof(DHT)];
+DHT* dht = nullptr;
 
 /*****************************************************************
  * HTU21D declaration                                            *
@@ -873,6 +875,7 @@ void readConfig() {
 					strcpyFromJSON(fs_pwd);
 					setFromJSON(www_basicauth_enabled);
 					setFromJSON(dht_read);
+					setFromJSON(dht_is_22);
 					setFromJSON(htu21d_read);
 					setFromJSON(ppd_read);
 					setFromJSON(sds_read);
@@ -964,6 +967,7 @@ void writeConfig() {
 	copyToJSON_String(fs_pwd);
 	copyToJSON_Bool(www_basicauth_enabled);
 	copyToJSON_Bool(dht_read);
+	copyToJSON_Bool(dht_is_22);
 	copyToJSON_Bool(htu21d_read);
 	copyToJSON_Bool(ppd_read);
 	copyToJSON_Bool(sds_read);
@@ -1379,7 +1383,14 @@ void webserver_config() {
 			page_content += form_checkbox_sensor("pms_read", FPSTR(INTL_PMS), pms_read);
 			page_content += form_checkbox_sensor("hpm_read", FPSTR(INTL_HPM), hpm_read);
 			page_content += form_checkbox_sensor("ppd_read", FPSTR(INTL_PPD42NS), ppd_read);
-			page_content += form_checkbox_sensor("dht_read", FPSTR(INTL_DHT22), dht_read);
+			if(dht_is_22)
+			{
+				page_content += form_checkbox_sensor("dht_read", FPSTR(INTL_DHT22), dht_read);
+			}
+			else
+			{
+				page_content += form_checkbox_sensor("dht_read", FPSTR(INTL_DHT11), dht_read);
+			}
 			page_content += form_checkbox_sensor("htu21d_read", FPSTR(INTL_HTU21D), htu21d_read);
 			page_content += form_checkbox_sensor("bmp_read", FPSTR(INTL_BMP180), bmp_read);
 			page_content += form_checkbox_sensor("bmp280_read", FPSTR(INTL_BMP280), bmp280_read);
@@ -1500,6 +1511,7 @@ void webserver_config() {
 			readBoolParam(send2madavi);
 			readBoolParam(ssl_madavi);
 			readBoolParam(dht_read);
+			readBoolParam(dht_is_22);
 			readBoolParam(htu21d_read);
 			readBoolParam(sds_read);
 			readBoolParam(pms_read);
@@ -1555,6 +1567,7 @@ void webserver_config() {
 		page_content += line_from_value(tmpl(FPSTR(INTL_SEND_TO), F("Luftdaten.info")), String(send2dusti));
 		page_content += line_from_value(tmpl(FPSTR(INTL_SEND_TO), F("Madavi")), String(send2madavi));
 		page_content += line_from_value(tmpl(FPSTR(INTL_READ_FROM), "DHT"), String(dht_read));
+		page_content += line_from_value(tmpl(FPSTR(INTL_READ_FROM), "DHT"), String(dht_is_22));
 		page_content += line_from_value(tmpl(FPSTR(INTL_READ_FROM), "HTU21D"), String(htu21d_read));
 		page_content += line_from_value(tmpl(FPSTR(INTL_READ_FROM), "SDS"), String(sds_read));
 		page_content += line_from_value(tmpl(FPSTR(INTL_READ_FROM), F("PMS(1,3,5,6,7)003")), String(pms_read));
@@ -1716,8 +1729,16 @@ void webserver_values() {
 		}
 		if (cfg::dht_read) {
 			page_content += FPSTR(EMPTY_ROW);
-			page_content += table_row_from_value(FPSTR(SENSORS_DHT22), FPSTR(INTL_TEMPERATURE), check_display_value(last_value_DHT_T, -128, 1, 0), unit_T);
-			page_content += table_row_from_value(FPSTR(SENSORS_DHT22), FPSTR(INTL_HUMIDITY), check_display_value(last_value_DHT_H, -1, 1, 0), unit_H);
+			if(cfg::dht_is_22)
+			{
+				page_content += table_row_from_value(FPSTR(SENSORS_DHT11), FPSTR(INTL_TEMPERATURE), check_display_value(last_value_DHT_T, -128, 1, 0), unit_T);
+				page_content += table_row_from_value(FPSTR(SENSORS_DHT11), FPSTR(INTL_HUMIDITY), check_display_value(last_value_DHT_H, -1, 1, 0), unit_H);
+			}
+			else
+			{
+				page_content += table_row_from_value(FPSTR(SENSORS_DHT11), FPSTR(INTL_TEMPERATURE), check_display_value(last_value_DHT_T, -128, 1, 0), unit_T);
+				page_content += table_row_from_value(FPSTR(SENSORS_DHT11), FPSTR(INTL_HUMIDITY), check_display_value(last_value_DHT_H, -1, 1, 0), unit_H);				
+			}
 		}
 		if (cfg::htu21d_read) {
 			page_content += FPSTR(EMPTY_ROW);
@@ -2371,7 +2392,7 @@ static String sensorDHT() {
 			t = dht.readTemperature(false);
 		}
 		if (isnan(t) || isnan(h)) {
-			debug_out(String(FPSTR(SENSORS_DHT22)) + FPSTR(DBG_TXT_COULDNT_BE_READ), DEBUG_ERROR, 1);
+			debug_out(String("DHT11/22") + FPSTR(DBG_TXT_COULDNT_BE_READ), DEBUG_ERROR, 1);
 		} else {
 			debug_out(FPSTR(DBG_TXT_TEMPERATURE), DEBUG_MIN_INFO, 0);
 			debug_out(String(t) + u8"°C", DEBUG_MIN_INFO, 1);
@@ -3290,9 +3311,17 @@ void display_values() {
 	}
 	if (cfg::dht_read) {
 		t_value = last_value_DHT_T;
-		t_sensor = FPSTR(SENSORS_DHT22);
 		h_value = last_value_DHT_H;
-		h_sensor = FPSTR(SENSORS_DHT22);
+		if(cfg::dht_is_22)
+		{
+			t_sensor = FPSTR(SENSORS_DHT22);
+			h_sensor = FPSTR(SENSORS_DHT22);
+		}
+		else
+		{
+			t_sensor = FPSTR(SENSORS_DHT11);
+			h_sensor = FPSTR(SENSORS_DHT11);			
+		}
 	}
 	if (cfg::ds18b20_read) {
 		t_value = last_value_DS18B20_T;
@@ -3882,7 +3911,7 @@ void loop() {
 
 	if (send_now) {
 		if (cfg::dht_read) {
-			debug_out(String(FPSTR(DBG_TXT_CALL_SENSOR)) + FPSTR(SENSORS_DHT22), DEBUG_MAX_INFO, 1);
+			debug_out(String(FPSTR(DBG_TXT_CALL_SENSOR)) + "DHT11/22", DEBUG_MAX_INFO, 1);
 			result_DHT = sensorDHT();                       // getting temperature and humidity (optional)
 		}
 

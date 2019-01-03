@@ -82,7 +82,7 @@
 
 // DHT22, temperature, humidity
 #define DHT_READ 1
-#define DHT_TYPE DHT11
+#define DHT_IS_22 1
 #define DHT_API_PIN 7
 
 // HTU21D, temperature, humidity
